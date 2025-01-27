@@ -1,8 +1,10 @@
+// Title: To Draw a Circle Using Bresenham's Midpoint Circle Drawing Algorithm with SDL2
+
 #include <SDL2/SDL.h>
 #include <stdio.h>
 
-// Function to draw pixels for all octants
-void drawCircle(SDL_Renderer *renderer, int xc, int yc, int x, int y) {
+// Function to plot a point in all octants using symmetry
+void plotPoint(SDL_Renderer *renderer, int xc, int yc, int x, int y) {
     SDL_RenderDrawPoint(renderer, xc + x, yc + y);
     SDL_RenderDrawPoint(renderer, xc - x, yc + y);
     SDL_RenderDrawPoint(renderer, xc + x, yc - y);
@@ -13,23 +15,24 @@ void drawCircle(SDL_Renderer *renderer, int xc, int yc, int x, int y) {
     SDL_RenderDrawPoint(renderer, xc - y, yc - x);
 }
 
-// Function to draw a circle using the Midpoint Algorithm
-void midpointCircle(SDL_Renderer *renderer, int xc, int yc, int r) {
+// Function to draw a circle using Bresenham's Midpoint Circle Algorithm
+void drawCircle(SDL_Renderer *renderer, int xc, int yc, int r) {
     int x = 0, y = r;
-    int p = 1 - r;
+    int p = 3 - 2 * r;
 
-    drawCircle(renderer, xc, yc, x, y);
+    // Plot the initial point
+    plotPoint(renderer, xc, yc, x, y);
 
-    while (x < y) {
+    // Use Bresenham's algorithm to plot the circle
+    while (x <= y) {
         if (p < 0) {
-            x++;
-            p += 2 * x + 1;
+            p = p + 4 * x + 6;
         } else {
-            x++;
+            p = p + 4 * (x - y) + 10;
             y--;
-            p += 2 * x - 2 * y + 1;
         }
-        drawCircle(renderer, xc, yc, x, y);
+        x++;
+        plotPoint(renderer, xc, yc, x, y);
     }
 }
 
@@ -42,7 +45,7 @@ int main() {
 
     // Create a window
     SDL_Window *window = SDL_CreateWindow(
-        "Midpoint Circle Algorithm", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 
+        "Bresenham's Midpoint Circle Algorithm", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 
         500, 500, SDL_WINDOW_SHOWN
     );
     if (window == NULL) {
@@ -60,16 +63,17 @@ int main() {
         return 1;
     }
 
-    // Set render draw color
-    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255); // Black background
+    // Set render draw color (black background)
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
     SDL_RenderClear(renderer);
 
-    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255); // White circle
+    // Set render draw color for the circle (white)
+    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
 
-    // Draw the circle
-    midpointCircle(renderer, 250, 250, 100);
+    // Draw a circle with center (250, 250) and radius 100
+    drawCircle(renderer, 250, 250, 100);
 
-    // Present the renderer
+    // Present the renderer (display the circle)
     SDL_RenderPresent(renderer);
 
     // Wait for 5 seconds
@@ -82,3 +86,10 @@ int main() {
 
     return 0;
 }
+
+// Command to Compile:
+// gcc -o midpoint_circle midpoint_circle.c -lSDL2
+
+
+// Command to Execute:
+// ./midpoint_circle
